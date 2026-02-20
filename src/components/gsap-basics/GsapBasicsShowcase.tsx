@@ -95,7 +95,7 @@ export default function GsapBasicsShowcase() {
              */
             gsap.to('.to-box', {
                 x: 300,                        // Moves 300px to the RIGHT
-                rotation: 360,                 // Full 360° clockwise spin
+                rotation: 180,                 // Full 360° clockwise spin
                 backgroundColor: '#ef4444',    // Changes from accent color to red
                 scale: 1.2,                    // Grows slightly larger
                 opacity: 0.5,                  // Becomes semi-transparent
