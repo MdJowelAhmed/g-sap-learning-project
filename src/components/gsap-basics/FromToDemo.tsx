@@ -52,7 +52,7 @@ export default function FromToDemo() {
                     x: 120,
                     scale: 1,
                     opacity: 1,
-                    borderRadius: '50%', // morphs into a circle on arrival
+                    borderRadius: '20%', // morphs into a circle on arrival
                     duration: 1.2,
                     ease: 'back.out(1.7)', // overshoots slightly before settling
                 }
@@ -73,7 +73,7 @@ export default function FromToDemo() {
                     scale: 0.5,
                 },
                 {
-                    y: 80,
+                    y: 20,
                     rotation: 0,
                     opacity: 1,
                     scale: 1,

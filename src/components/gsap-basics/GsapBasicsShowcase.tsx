@@ -196,7 +196,7 @@ export default function GsapBasicsShowcase() {
 
                 {/* ── Animation Arena ── */}
                 <div
-                    className="relative w-full max-w-4xl rounded-3xl overflow-hidden m-24"
+                    className="relative w-full max-w-4xl rounded-3xl overflow-hidden "
                     style={{
                         background: 'rgba(255,255,255,0.03)',
                         border: '1px solid rgba(255,255,255,0.06)',
