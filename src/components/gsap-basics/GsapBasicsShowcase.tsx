@@ -126,7 +126,7 @@ export default function GsapBasicsShowcase() {
     );
 
     return (
-        <div style={{ background: '#0a0a0a' }}>
+        <div style={{ background: '#0a0a0a', marginTop: '100px' }}>
             {/* ══════════════════════════════════════════
             Example 1 — to() vs from()
         ══════════════════════════════════════════ */}
@@ -149,13 +149,14 @@ export default function GsapBasicsShowcase() {
                 </div>
 
                 {/* ── Explanation Cards ── */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl mb-20">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl mb-10 ">
                     {/* from() Card */}
                     <div
-                        className="rounded-2xl p-6 border"
+                        className="rounded-2xl p-4 border "
                         style={{
                             background: 'rgba(96,165,250,0.05)',
                             borderColor: 'rgba(96,165,250,0.2)',
+
                         }}
                     >
                         <span
@@ -164,7 +165,7 @@ export default function GsapBasicsShowcase() {
                         >
                             gsap.from()
                         </span>
-                        <p className="text-white/70 text-sm leading-relaxed">
+                        <p className="text-white/70 text-sm leading-relaxed ">
                             You define the <strong className="text-white">starting state</strong>. GSAP animates the
                             element <em>from</em> those values back to its natural CSS position. The element was always
                             &quot;there&quot; — it just flies in.
@@ -195,11 +196,12 @@ export default function GsapBasicsShowcase() {
 
                 {/* ── Animation Arena ── */}
                 <div
-                    className="relative w-full max-w-4xl rounded-3xl overflow-hidden"
+                    className="relative w-full max-w-4xl rounded-3xl overflow-hidden m-24"
                     style={{
                         background: 'rgba(255,255,255,0.03)',
                         border: '1px solid rgba(255,255,255,0.06)',
                         minHeight: '360px',
+                        // marginTop: "100px"
                     }}
                 >
                     {/* Grid lines for visual depth */}

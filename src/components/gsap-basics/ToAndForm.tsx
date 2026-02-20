@@ -40,7 +40,11 @@ useGSAP(() => {
 
     return (
         <div>
-            <h1>ToAndForm</h1>
+           <div ref={containerRef} className="flex gap-10">
+            <div className="from-box w-20 h-20 bg-blue-500 rounded-lg"></div>
+            <div className="to-box w-20 h-20 bg-green-500 rounded-lg"></div>
+           </div>
+
         </div>
     );
 };
