@@ -27,6 +27,8 @@ const navLinks = [
     { href: '/services', label: 'Services' },
     { href: '/about', label: 'About' },
     { href: '/gsap-basics', label: 'GSAP Basics' },
+    { href: '/gsap-stagger', label: 'GSAP Stagger' },
+    { href: '/gsap-timeline', label: 'GSAP Timeline' },
 ];
 
 export default function Navbar() {

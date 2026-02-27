@@ -83,13 +83,16 @@ export default function StaggerDemo() {
     useGSAP(() => { runAnimation(); }, { scope: containerRef });
 
     return (
-        <section
+      <div   >
+          <section
             ref={containerRef}
-            className="relative w-full max-w-4xl mt-8 rounded-3xl overflow-hidden"
+            className="relative w-full max-w-4xl mt-8 rounded-3xl overflow-hidden mx-auto mt-28"
             style={{
                 background: 'linear-gradient(145deg, rgba(16,185,129,0.04) 0%, rgba(10,10,10,0) 60%)',
                 border: '1px solid rgba(16,185,129,0.12)',
             }}
+            
+
         >
             {/* Ambient glow */}
             <div
@@ -299,5 +302,6 @@ export default function StaggerDemo() {
                 </div>
             </div>
         </section>
+      </div>
     );
 }
