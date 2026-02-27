@@ -147,11 +147,11 @@ export default function GsapBasicsShowcase() {
             ══════════════════════════ */}
             <div
                 ref={containerRef}
-                className="relative z-10 w-full flex flex-col items-center px-6 pt-20 pb-16"
+                className="relative z-10 w-full flex flex-col items-center px-6 pt-20 pb-16 mt-6"
             >
                 {/* ── Section pill ── */}
                 <span
-                    className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] font-bold px-5 py-2 rounded-full mb-8"
+                    className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] font-bold px-5 py-2 rounded-full mb-2"
                     style={{
                         background: 'rgba(201,243,29,0.08)',
                         color: '#c9f31d',
@@ -181,7 +181,7 @@ export default function GsapBasicsShowcase() {
                         ))}
                     </h1>
                 </div>
-                <p className="text-white/35 text-base md:text-lg leading-relaxed mb-12 max-w-xl text-center">
+                <p className="text-white/35 text-base md:text-lg leading-relaxed mb-6 max-w-2xl text-center">
                     Two core GSAP methods — same destination, opposite direction of travel.
                 </p>
 
@@ -239,7 +239,7 @@ export default function GsapBasicsShowcase() {
                 </div>
 
                 {/* ── Animation Arena ── */}
-                <div className="relative w-full max-w-4xl rounded-3xl overflow-hidden mb-12">
+                <div className="relative w-full max-w-4xl rounded-3xl overflow-hidden mb-8">
                     {/* Glowing border */}
                     <div
                         className="arena-border-glow absolute inset-0 rounded-3xl pointer-events-none opacity-0"
@@ -254,7 +254,7 @@ export default function GsapBasicsShowcase() {
                         style={{
                             background: 'rgba(255,255,255,0.025)',
                             border: '1px solid rgba(255,255,255,0.07)',
-                            minHeight: '340px',
+                            minHeight: '300px',
                         }}
                     >
                         {/* Interior grid */}
@@ -269,10 +269,10 @@ export default function GsapBasicsShowcase() {
 
                         {/* Arena label */}
                         <div className="absolute top-4 left-1/2 -translate-x-1/2">
-                            <span className="text-[10px] uppercase tracking-[0.25em] text-white/15 font-mono">Animation Arena</span>
+                            <span className="text-[10px] uppercase tracking-[0.25em] text-white font-mono ">Animation Arena</span>
                         </div>
 
-                        <div className="relative z-10 flex flex-col md:flex-row items-center justify-around gap-12 p-12 md:p-16">
+                        <div className="relative z-10 flex flex-col md:flex-row items-center justify-around gap-12 p-8 md:p-10">
 
                             {/* ── FROM BOX ── */}
                             <div className="flex flex-col items-center gap-6">
@@ -313,9 +313,9 @@ export default function GsapBasicsShowcase() {
 
                             {/* ── Divider ── */}
                             <div className="hidden md:flex flex-col items-center gap-2">
-                                <div className="w-px flex-1 min-h-[80px]" style={{ background: 'linear-gradient(180deg, transparent, rgba(255,255,255,0.1), transparent)' }} />
-                                <span className="text-white/15 text-xs font-mono">vs</span>
-                                <div className="w-px flex-1 min-h-[80px]" style={{ background: 'linear-gradient(180deg, transparent, rgba(255,255,255,0.1), transparent)' }} />
+                                <div className="w-px flex-1 min-h-[80px]" style={{ background: 'linear-gradient(180deg, transparent, rgba(255,255,255), transparent)' }} />
+                                <span className="text-white text-xs font-mono">vs</span>
+                                <div className="w-px flex-1 min-h-[80px]" style={{ background: 'linear-gradient(180deg, transparent, rgba(255,255,255), transparent)' }} />
                             </div>
 
                             {/* ── TO BOX ── */}
