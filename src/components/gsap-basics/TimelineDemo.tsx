@@ -4,18 +4,6 @@
  * ===================================================
  * TimelineDemo — gsap.timeline() Showcase (Redesigned)
  * ===================================================
- *
- * CONCEPT:
- * A GSAP Timeline chains tweens into one controlled sequence.
- * No manual delay math — use the position parameter to queue,
- * overlap, or offset animations with surgical precision.
- *
- * Position param cheat-sheet:
- *   tl.to(el, {...})          → starts AFTER previous tween ends
- *   tl.to(el, {...}, "<")     → starts at SAME TIME as previous
- *   tl.to(el, {...}, "+=0.5") → starts 0.5s AFTER previous ends
- *   tl.to(el, {...}, "-=0.3") → overlaps — 0.3s before previous ends
- *   tl.to(el, {...}, 2)       → starts at exactly 2-second mark
  */
 
 import { useRef, useState } from 'react';
@@ -304,18 +292,18 @@ export default function TimelineDemo() {
 
                             {/* Center crosshair */}
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <div className="w-px h-full bg-white/3" />
-                                <div className="h-px w-full bg-white/3 absolute" />
+                                <div className="w-px h-full bg-white/[0.03]" />
+                                <div className="h-px w-full bg-white/[0.03] absolute" />
                             </div>
 
-                            {/* The animated box */}
+                            {/* The animated square box */}
                             <div
-                                className="tl-hero-box relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center font-black text-white text-xs shadow-2xl"
+                                className="tl-hero-box relative z-10 w-16 h-16 rounded-2xl flex items-center justify-center font-black text-white text-sm"
                                 style={{
                                     background: '#f97316',
                                     boxShadow:
                                         activeStep >= 0
-                                            ? `0 0 40px ${STEPS[activeStep]?.glow ?? 'rgba(249,115,22,0.5)'}`
+                                            ? `0 0 40px ${STEPS[activeStep]?.glow ?? 'rgba(249,115,22,0.5)'}, 0 0 80px ${STEPS[activeStep]?.glowSoft ?? 'rgba(249,115,22,0.1)'}`
                                             : '0 0 30px rgba(249,115,22,0.4)',
                                     opacity: 0,
                                 }}

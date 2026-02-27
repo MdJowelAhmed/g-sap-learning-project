@@ -4,13 +4,6 @@
  * ===================================================
  * StaggerDemo — GSAP Stagger Showcase (Redesigned)
  * ===================================================
- *
- * CONCEPT:
- * Stagger animates multiple elements with the SAME tween but each
- * element starts with a small time offset — creating wave / cascade effects.
- *
- * stagger: 0.12             → simple linear — each item waits 0.12 s
- * stagger: { amount, from } → advanced — radiate from 'center', 'end', etc.
  */
 
 import { useRef } from 'react';
@@ -39,7 +32,6 @@ export default function StaggerDemo() {
         ctx.current = gsap.context(() => {
             /**
              * Demo 1 — Linear stagger
-             * Each list row slides in from the left, 0.12 s apart.
              */
             gsap.from('.sg-list-row', {
                 x: -60,
@@ -49,7 +41,6 @@ export default function StaggerDemo() {
                 stagger: 0.15,
             });
 
-            // Accent bar fills in after item
             gsap.from('.sg-list-bar', {
                 scaleX: 0,
                 opacity: 0,
@@ -62,7 +53,6 @@ export default function StaggerDemo() {
 
             /**
              * Demo 2 — Center stagger on 3×3 grid
-             * Center cell fires first, then radiates outward.
              */
             gsap.from('.sg-grid-cell', {
                 scale: 0,
@@ -83,16 +73,13 @@ export default function StaggerDemo() {
     useGSAP(() => { runAnimation(); }, { scope: containerRef });
 
     return (
-      <div   >
-          <section
+        <section
             ref={containerRef}
             className="relative w-full max-w-4xl mt-8 rounded-3xl overflow-hidden mx-auto mt-28"
             style={{
                 background: 'linear-gradient(145deg, rgba(16,185,129,0.04) 0%, rgba(10,10,10,0) 60%)',
                 border: '1px solid rgba(16,185,129,0.12)',
             }}
-            
-
         >
             {/* Ambient glow */}
             <div
@@ -143,7 +130,7 @@ export default function StaggerDemo() {
                         <span className="text-white/20 text-[10px]"> // linear</span>
                         <br />
                         <span style={{ color: '#10b981' }}>stagger</span>
-                        <span className="text-white/30">: {'{ '}</span>
+                        <span className="text-white/30">{': { '}</span>
                         <span className="text-blue-300/80">amount</span>
                         <span className="text-white/20">: </span>
                         <span className="text-yellow-300/80">1.1</span>
@@ -229,28 +216,36 @@ export default function StaggerDemo() {
                             Center-out <span style={{ color: '#10b981' }}>stagger: {'{ from: "center" }'}</span>
                         </p>
 
-                        {/* 3×3 Grid */}
+                        {/* 3×3 Grid of square boxes */}
                         <div className="grid grid-cols-3 gap-3 flex-1">
                             {GRID_ITEMS.map((n) => {
                                 const isCenter = n === 4;
                                 return (
                                     <div
                                         key={n}
-                                        className="sg-grid-cell aspect-square rounded-xl flex items-center justify-center text-sm font-bold relative overflow-hidden"
+                                        className="sg-grid-cell rounded-2xl flex items-center justify-center font-bold relative overflow-hidden"
                                         style={{
+                                            aspectRatio: '1 / 1',
                                             background: isCenter
                                                 ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                                                : 'rgba(16,185,129,0.07)',
-                                            border: `1px solid ${isCenter ? 'rgba(16,185,129,0.5)' : 'rgba(16,185,129,0.12)'}`,
-                                            boxShadow: isCenter ? '0 0 20px rgba(16,185,129,0.35)' : 'none',
+                                                : 'linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.06) 100%)',
+                                            border: `1px solid ${isCenter ? 'rgba(16,185,129,0.5)' : 'rgba(16,185,129,0.15)'}`,
+                                            boxShadow: isCenter ? '0 0 30px rgba(16,185,129,0.4), 0 0 60px rgba(16,185,129,0.12)' : 'none',
                                             color: isCenter ? '#fff' : 'rgba(255,255,255,0.3)',
                                         }}
                                     >
-                                        {isCenter ? (
-                                            <span className="text-lg">★</span>
-                                        ) : (
-                                            <span className="text-xs font-mono">{n < 4 ? n + 1 : n + 1}</span>
+                                        {/* Inner glow for non-center cells */}
+                                        {!isCenter && (
+                                            <div
+                                                className="absolute inset-0 rounded-2xl pointer-events-none"
+                                                style={{
+                                                    background: 'radial-gradient(circle at 30% 30%, rgba(16,185,129,0.08) 0%, transparent 60%)',
+                                                }}
+                                            />
                                         )}
+                                        <span className="relative z-10 text-lg">
+                                            {isCenter ? '★' : n + 1}
+                                        </span>
                                     </div>
                                 );
                             })}
@@ -302,6 +297,5 @@ export default function StaggerDemo() {
                 </div>
             </div>
         </section>
-      </div>
     );
 }
