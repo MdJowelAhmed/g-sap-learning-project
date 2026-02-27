@@ -44,19 +44,19 @@ export default function StaggerDemo() {
             gsap.from('.sg-list-row', {
                 x: -60,
                 opacity: 0,
-                duration: 0.55,
+                duration: 0.9,
                 ease: 'power3.out',
-                stagger: 0.12,
+                stagger: 0.15,
             });
 
             // Accent bar fills in after item
             gsap.from('.sg-list-bar', {
                 scaleX: 0,
                 opacity: 0,
-                duration: 0.4,
+                duration: 0.9,
                 ease: 'power2.out',
-                stagger: 0.12,
-                delay: 0.1,
+                stagger: 0.15,
+                delay: 0.3,
                 transformOrigin: 'left center',
             });
 
@@ -68,11 +68,11 @@ export default function StaggerDemo() {
                 scale: 0,
                 opacity: 0,
                 rotation: 90,
-                duration: 0.5,
+                duration: 0.9,
                 ease: 'back.out(2.5)',
                 delay: 0.3,
                 stagger: {
-                    amount: 1.1,
+                    amount: 1.8,
                     from: 'center',
                     ease: 'power1.in',
                 },
