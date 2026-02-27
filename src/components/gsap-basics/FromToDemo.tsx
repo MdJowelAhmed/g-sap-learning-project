@@ -2,28 +2,62 @@
 
 /**
  * ===================================================
- * FromToDemo — gsap.fromTo() Showcase
+ * FromToDemo — gsap.fromTo() Showcase (Redesigned)
  * ===================================================
  *
  * CONCEPT:
- * gsap.fromTo() is the most EXPLICIT of the three core methods.
- * You define BOTH the starting values AND the ending values yourself.
- * GSAP ignores the element's current CSS state entirely.
+ * gsap.fromTo() gives you TOTAL control — you define both
+ * the starting AND ending values, making animations 100% predictable.
  *
  * Syntax:
- *   gsap.fromTo(target, { /* FROM values *\/ }, { /* TO values *\/ })
- *
- * WHY use fromTo() instead of from() or to()?
- *   - When you want total control — no dependency on the element's CSS state.
- *   - When replaying animations: gsap.from() re-reads the current CSS values,
- *     which can drift. fromTo() always snaps back to the defined FROM state.
- *   - Great for looping, timeline sequencing, or when elements have been
- *     previously animated and their "natural" position is ambiguous.
+ *   gsap.fromTo(target, { /* FROM *\/ }, { /* TO *\/ })
  */
 
 import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
+
+const CARDS = [
+    {
+        id: 'fromto-orb-1',
+        label: 'Morph',
+        icon: '◈',
+        from: 'Scale 0 · Left',
+        to: 'Scale 1 · Circle',
+        gradient: 'linear-gradient(135deg, #a855f7 0%, #6d28d9 50%, #4c1d95 100%)',
+        glow: 'rgba(168,85,247,0.6)',
+        glowSoft: 'rgba(168,85,247,0.15)',
+        border: 'rgba(168,85,247,0.4)',
+        ease: 'back.out(1.7)',
+        desc: 'borderRadius morphs from square → circle',
+    },
+    {
+        id: 'fromto-orb-2',
+        label: 'Fall',
+        icon: '◉',
+        from: 'Top · Rotated',
+        to: 'Down · Bounce',
+        gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)',
+        glow: 'rgba(245,158,11,0.6)',
+        glowSoft: 'rgba(245,158,11,0.15)',
+        border: 'rgba(245,158,11,0.4)',
+        ease: 'bounce.out',
+        desc: 'Simulates gravity — falls & bounces on land',
+    },
+    {
+        id: 'fromto-orb-3',
+        label: 'Skew Loop',
+        icon: '◇',
+        from: 'Left · Tilted',
+        to: 'Right · Straight',
+        gradient: 'linear-gradient(135deg, #ec4899 0%, #be185d 50%, #9d174d 100%)',
+        glow: 'rgba(236,72,153,0.6)',
+        glowSoft: 'rgba(236,72,153,0.15)',
+        border: 'rgba(236,72,153,0.4)',
+        ease: 'sine.inOut',
+        desc: 'Loops yoyo — always snaps to defined FROM',
+    },
+];
 
 export default function FromToDemo() {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -33,200 +67,228 @@ export default function FromToDemo() {
         if (ctx.current) ctx.current.revert();
 
         ctx.current = gsap.context(() => {
-            /**
-             * Box 1 — fromTo() with explicit size & color change
-             * FROM: small (scale 0.3), blue, left side
-             * TO:   full size (scale 1), purple, right side
-             */
+            // Card 1 — scale + borderRadius morph
             gsap.fromTo(
-                '.fromto-box-1',
-                {
-                    // ─── FROM (starting state) ───
-                    x: -120,
-                    scale: 0.3,
-                    opacity: 0,
-                    borderRadius: '4px',
-                },
-                {
-                    // ─── TO (ending state) ───
-                    x: 120,
-                    scale: 1,
-                    opacity: 1,
-                    borderRadius: '20%', // morphs into a circle on arrival
-                    duration: 1.2,
-                    ease: 'back.out(1.7)', // overshoots slightly before settling
-                }
+                '.fromto-orb-1',
+                { x: -140, scale: 0.2, opacity: 0, borderRadius: '6px', rotate: -45 },
+                { x: 0, scale: 1, opacity: 1, borderRadius: '50%', rotate: 0, duration: 1.3, ease: 'back.out(1.7)' }
             );
 
-            /**
-             * Box 2 — fromTo() showing independent control of start/end
-             * regardless of the element's actual CSS position.
-             * FROM: top, rotated, yellow
-             * TO:   bottom, upright, white — with a bounce ease
-             */
+            // Card 2 — fall with bounce
             gsap.fromTo(
-                '.fromto-box-2',
-                {
-                    y: -80,
-                    rotation: -90,
-                    opacity: 0.2,
-                    scale: 0.5,
-                },
-                {
-                    y: 20,
-                    rotation: 0,
-                    opacity: 1,
-                    scale: 1,
-                    duration: 1.4,
-                    ease: 'bounce.out', // simulates gravity/bouncing on landing
-                    delay: 0.3,
-                }
+                '.fromto-orb-2',
+                { y: -100, rotation: -90, opacity: 0, scale: 0.4 },
+                { y: 0, rotation: 0, opacity: 1, scale: 1, duration: 1.5, ease: 'bounce.out', delay: 0.25 }
             );
 
-            /**
-             * Box 3 — fromTo() looping with yoyo
-             * Proves that fromTo() always returns to the exact FROM state
-             * on each loop — consistent and predictable, unlike gsap.from().
-             */
+            // Card 3 — skew loop
             gsap.fromTo(
-                '.fromto-box-3',
-                {
-                    x: -100,
-                    skewX: 30,      // tilted/skewed at start
-                    opacity: 0.1,
-                },
-                {
-                    x: 100,
-                    skewX: 0,       // straightens out on arrival
-                    opacity: 1,
-                    duration: 1,
-                    ease: 'sine.inOut',
-                    repeat: -1,
-                    yoyo: true,
-                    delay: 0.6,
-                }
+                '.fromto-orb-3',
+                { x: -110, skewX: 35, opacity: 0.1, scale: 0.6 },
+                { x: 110, skewX: 0, opacity: 1, scale: 1, duration: 1.1, ease: 'sine.inOut', repeat: -1, yoyo: true, delay: 0.5 }
+            );
+
+            // Animate the connector lines
+            gsap.fromTo(
+                '.fromto-line',
+                { scaleX: 0, opacity: 0 },
+                { scaleX: 1, opacity: 1, duration: 0.8, ease: 'power2.out', stagger: 0.15, delay: 0.2 }
+            );
+
+            // Badge pulse on each card
+            gsap.fromTo(
+                '.fromto-badge',
+                { scale: 0, opacity: 0 },
+                { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(2)', stagger: 0.15, delay: 0.4 }
             );
         }, containerRef);
     };
 
-    useGSAP(
-        () => { runAnimation(); },
-        { scope: containerRef }
-    );
+    useGSAP(() => { runAnimation(); }, { scope: containerRef });
 
     return (
         <section
             ref={containerRef}
-            className="w-full max-w-4xl rounded-3xl p-8 md:p-12 mt-6"
+            className="relative w-full max-w-4xl mt-8 rounded-3xl overflow-hidden"
             style={{
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'linear-gradient(145deg, rgba(168,85,247,0.04) 0%, rgba(10,10,10,0) 60%)',
+                border: '1px solid rgba(168,85,247,0.12)',
             }}
         >
-            {/* Header */}
-            <div className="mb-8">
-                <span
-                    className="inline-block text-xs uppercase tracking-widest font-semibold px-3 py-1 rounded-full mb-3"
-                    style={{ background: 'rgba(168,85,247,0.15)', color: '#a855f7' }}
-                >
-                    Example 2
-                </span>
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                    gsap<span style={{ color: '#a855f7' }}>.fromTo()</span>
-                </h2>
-                <p className="text-white/50 text-sm max-w-xl leading-relaxed">
-                    You control <strong className="text-white">both</strong> the start AND end state explicitly.
-                    GSAP ignores the element&#39;s CSS — perfect for predictable, repeatable animations.
-                </p>
-            </div>
-
-            {/* Code hint */}
+            {/* Ambient glow top-left */}
             <div
-                className="rounded-xl px-5 py-3 mb-8 font-mono text-xs text-white/60 leading-relaxed"
-                style={{ background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.15)' }}
-            >
-                <span style={{ color: '#a855f7' }}>gsap</span>
-                <span className="text-white/40">.fromTo(</span>
-                <span className="text-yellow-300">target</span>
-                <span className="text-white/40">, </span>
-                <span className="text-blue-300">{'{ /* FROM */ }'}</span>
-                <span className="text-white/40">, </span>
-                <span style={{ color: '#c9f31d' }}>{'{ /* TO */ }'}</span>
-                <span className="text-white/40">)</span>
-            </div>
-
-            {/* Animation Stage */}
-            <div
-                className="relative rounded-2xl overflow-hidden flex flex-col gap-10 items-center justify-center py-10 px-4"
+                className="absolute -top-20 -left-20 w-72 h-72 rounded-full pointer-events-none"
                 style={{
-                    background: 'rgba(0,0,0,0.3)',
-                    border: '1px solid rgba(255,255,255,0.04)',
-                    minHeight: '280px',
+                    background: 'radial-gradient(circle, rgba(168,85,247,0.12) 0%, transparent 70%)',
+                    filter: 'blur(40px)',
                 }}
-            >
-                {/* Box 1 */}
-                <div className="flex flex-col items-center gap-3">
-                    <span className="text-[11px] text-white/30 uppercase tracking-widest">→ morphs to circle</span>
+            />
+
+            <div className="relative z-10 p-8 md:p-12">
+                {/* ── Header ── */}
+                <div className="flex items-start justify-between mb-10 flex-wrap gap-4">
+                    <div>
+                        <span
+                            className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-bold px-4 py-1.5 rounded-full mb-4"
+                            style={{
+                                background: 'rgba(168,85,247,0.12)',
+                                color: '#a855f7',
+                                border: '1px solid rgba(168,85,247,0.25)',
+                            }}
+                        >
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+                            Example 2
+                        </span>
+                        <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-2">
+                            gsap<span style={{ color: '#a855f7' }}>.fromTo()</span>
+                        </h2>
+                        <p className="text-white/40 text-sm max-w-sm leading-relaxed">
+                            You define <em className="text-white/70 not-italic font-semibold">both</em> endpoints.
+                            GSAP ignores CSS — every replay is predictable.
+                        </p>
+                    </div>
+
+                    {/* Syntax chip */}
                     <div
-                        className="fromto-box-1 w-16 h-16 flex items-center justify-center text-xs font-bold text-white"
-                        style={{ background: 'linear-gradient(135deg, #a855f7, #6d28d9)', borderRadius: '4px' }}
+                        className="rounded-2xl px-5 py-4 font-mono text-xs leading-6 self-start"
+                        style={{
+                            background: 'rgba(0,0,0,0.4)',
+                            border: '1px solid rgba(168,85,247,0.2)',
+                            backdropFilter: 'blur(12px)',
+                        }}
                     >
-                        1
+                        <span style={{ color: '#a855f7' }}>gsap</span>
+                        <span className="text-white/30">.fromTo(</span>
+                        <br />
+                        <span className="ml-4 text-yellow-300/80">target</span>
+                        <span className="text-white/20">,</span>
+                        <br />
+                        <span className="ml-4 text-blue-300/80">{'{ from }'}</span>
+                        <span className="text-white/20">,</span>
+                        <br />
+                        <span className="ml-4 text-emerald-300/80">{'{ to }'}</span>
+                        <br />
+                        <span className="text-white/30">)</span>
                     </div>
                 </div>
 
-                {/* Box 2 */}
-                <div className="flex flex-col items-center gap-3">
-                    <span className="text-[11px] text-white/30 uppercase tracking-widest">↓ falls with bounce</span>
-                    <div
-                        className="fromto-box-2 w-16 h-16 rounded-xl flex items-center justify-center text-xs font-bold text-white"
-                        style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
-                    >
-                        2
-                    </div>
+                {/* ── Animation Cards ── */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+                    {CARDS.map((card, i) => (
+                        <div
+                            key={card.id}
+                            className="relative rounded-2xl p-6 flex flex-col items-center gap-5 overflow-hidden"
+                            style={{
+                                background: 'rgba(0,0,0,0.35)',
+                                border: `1px solid ${card.border.replace('0.4', '0.15')}`,
+                                backdropFilter: 'blur(16px)',
+                            }}
+                        >
+                            {/* Corner glow */}
+                            <div
+                                className="absolute top-0 right-0 w-24 h-24 rounded-full pointer-events-none"
+                                style={{
+                                    background: `radial-gradient(circle, ${card.glowSoft} 0%, transparent 70%)`,
+                                    filter: 'blur(20px)',
+                                    transform: 'translate(30%, -30%)',
+                                }}
+                            />
+
+                            {/* From → To labels */}
+                            <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-white/30 font-mono fromto-badge">
+                                <span className="px-2 py-0.5 rounded bg-white/5">{card.from}</span>
+                                <span className="text-white/20">→</span>
+                                <span className="px-2 py-0.5 rounded" style={{ background: card.glowSoft, color: card.border.replace('0.4', '0.9') }}>
+                                    {card.to}
+                                </span>
+                            </div>
+
+                            {/* The animated orb */}
+                            <div className="relative flex items-center justify-center h-20">
+                                {/* Track line */}
+                                {card.id !== 'fromto-orb-2' && (
+                                    <div
+                                        className="fromto-line absolute inset-y-0 left-1/2 -translate-x-1/2 w-24 h-px my-auto"
+                                        style={{
+                                            background: `linear-gradient(90deg, transparent, ${card.border.replace('0.4', '0.3')}, transparent)`,
+                                            transformOrigin: 'left center',
+                                        }}
+                                    />
+                                )}
+                                <div
+                                    className={`${card.id} w-16 h-16 flex items-center justify-center text-xl font-black text-white relative z-10`}
+                                    style={{
+                                        background: card.gradient,
+                                        boxShadow: `0 0 32px ${card.glow.replace('0.6', '0.35')}, 0 0 80px ${card.glow.replace('0.6', '0.1')}`,
+                                        borderRadius: '16px',
+                                    }}
+                                >
+                                    {card.icon}
+                                </div>
+                            </div>
+
+                            {/* Label */}
+                            <div className="text-center">
+                                <p
+                                    className="text-xs font-bold uppercase tracking-widest mb-1"
+                                    style={{ color: card.border.replace('0.4', '0.9') }}
+                                >
+                                    {card.label}
+                                </p>
+                                <p className="text-[11px] text-white/30 leading-relaxed">{card.desc}</p>
+                                <p className="text-[10px] font-mono mt-1" style={{ color: card.border.replace('0.4', '0.5') }}>
+                                    ease: {card.ease}
+                                </p>
+                            </div>
+
+                            {/* Card number */}
+                            <div
+                                className="absolute bottom-3 right-4 text-[10px] font-mono opacity-20 text-white"
+                            >
+                                0{i + 1}
+                            </div>
+                        </div>
+                    ))}
                 </div>
 
-                {/* Box 3 */}
-                <div className="flex flex-col items-center gap-3">
-                    <span className="text-[11px] text-white/30 uppercase tracking-widest">↔ loops with skew</span>
+                {/* ── Insight + Replay Row ── */}
+                <div className="flex flex-col sm:flex-row gap-4 items-stretch">
                     <div
-                        className="fromto-box-3 w-16 h-16 rounded-xl flex items-center justify-center text-xs font-bold text-white"
-                        style={{ background: 'linear-gradient(135deg, #ec4899, #9d174d)' }}
+                        className="flex-1 rounded-2xl px-5 py-4 text-sm leading-relaxed"
+                        style={{
+                            background: 'rgba(168,85,247,0.06)',
+                            border: '1px solid rgba(168,85,247,0.12)',
+                        }}
                     >
-                        3
+                        <strong style={{ color: '#a855f7' }}>💡 Key Insight: </strong>
+                        <span className="text-white/50">
+                            <code className="text-white/80 text-xs bg-white/5 px-1.5 py-0.5 rounded">gsap.from()</code> re-reads the element&apos;s position on replay — it can drift.{' '}
+                            <code className="text-white/80 text-xs bg-white/5 px-1.5 py-0.5 rounded">fromTo()</code> always snaps to your defined FROM state, making loops{' '}
+                            <strong className="text-white/80">100% predictable</strong>.
+                        </span>
                     </div>
+
+                    <button
+                        onClick={runAnimation}
+                        className="group relative px-8 py-4 rounded-2xl text-sm font-bold transition-all duration-300 overflow-hidden flex-shrink-0 self-stretch flex items-center justify-center gap-2"
+                        style={{
+                            background: 'rgba(168,85,247,0.15)',
+                            color: '#c084fc',
+                            border: '1px solid rgba(168,85,247,0.3)',
+                        }}
+                        onMouseEnter={(e) => {
+                            (e.currentTarget as HTMLElement).style.background = 'rgba(168,85,247,0.28)';
+                            (e.currentTarget as HTMLElement).style.boxShadow = '0 0 30px rgba(168,85,247,0.3)';
+                        }}
+                        onMouseLeave={(e) => {
+                            (e.currentTarget as HTMLElement).style.background = 'rgba(168,85,247,0.15)';
+                            (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                        }}
+                    >
+                        <span className="text-base">↺</span>
+                        Replay fromTo()
+                    </button>
                 </div>
-            </div>
-
-            {/* Key insight callout */}
-            <div
-                className="mt-6 rounded-xl px-5 py-4 text-sm leading-relaxed"
-                style={{ background: 'rgba(168,85,247,0.06)', border: '1px solid rgba(168,85,247,0.12)' }}
-            >
-                <strong style={{ color: '#a855f7' }}>💡 Key Insight: </strong>
-                <span className="text-white/60">
-                    When you replay an animation built with <code className="text-white/90 text-xs">gsap.from()</code>,
-                    it re-reads the element&#39;s current CSS position as the destination — which may have shifted.
-                    <code className="text-white/90 text-xs"> fromTo()</code> always snaps to your defined FROM values,
-                    making loops and replays <strong className="text-white">100% predictable</strong>.
-                </span>
-            </div>
-
-            {/* Replay */}
-            <div className="mt-6 flex justify-center">
-                <button
-                    onClick={runAnimation}
-                    className="px-7 py-3 rounded-full text-sm font-semibold transition-all duration-300"
-                    style={{
-                        background: 'rgba(168,85,247,0.2)',
-                        color: '#a855f7',
-                        border: '1px solid rgba(168,85,247,0.4)',
-                    }}
-                    onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = 'rgba(168,85,247,0.35)')}
-                    onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = 'rgba(168,85,247,0.2)')}
-                >
-                    ↺ Replay fromTo()
-                </button>
             </div>
         </section>
     );

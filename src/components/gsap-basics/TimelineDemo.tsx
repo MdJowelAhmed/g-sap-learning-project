@@ -2,27 +2,20 @@
 
 /**
  * ===================================================
- * TimelineDemo — gsap.timeline() Showcase
+ * TimelineDemo — gsap.timeline() Showcase (Redesigned)
  * ===================================================
  *
  * CONCEPT:
- * A GSAP Timeline chains multiple tweens together into one controlled sequence.
- * Each animation plays AFTER the previous one ends by default — no manual delay
- * math needed. You can also overlap, offset, and label animations precisely.
+ * A GSAP Timeline chains tweens into one controlled sequence.
+ * No manual delay math — use the position parameter to queue,
+ * overlap, or offset animations with surgical precision.
  *
- * WHY Timeline instead of multiple gsap.to() calls?
- *   Without timeline: you manually calculate delays (0.5, 1.0, 1.5...) — fragile.
- *   With timeline:    each tween is automatically queued after the last — clean.
- *
- * Time Position Parameter (the 3rd argument in .to / .from):
- *   tl.to(el, {...})          → same as "<"  — starts AFTER previous tween ends
- *   tl.to(el, {...}, "<")     → starts at the SAME TIME as the previous tween
- *   tl.to(el, {...}, "+=0.5") → starts 0.5s AFTER the previous tween ends
- *   tl.to(el, {...}, "-=0.3") → starts 0.3s BEFORE the previous tween ends (overlap)
- *   tl.to(el, {...}, 2)       → starts exactly at the 2-second mark
- *
- * Timeline controls (available after creation):
- *   tl.play()    tl.pause()    tl.reverse()    tl.restart()    tl.seek(time)
+ * Position param cheat-sheet:
+ *   tl.to(el, {...})          → starts AFTER previous tween ends
+ *   tl.to(el, {...}, "<")     → starts at SAME TIME as previous
+ *   tl.to(el, {...}, "+=0.5") → starts 0.5s AFTER previous ends
+ *   tl.to(el, {...}, "-=0.3") → overlaps — 0.3s before previous ends
+ *   tl.to(el, {...}, 2)       → starts at exactly 2-second mark
  */
 
 import { useRef, useState } from 'react';
@@ -30,11 +23,58 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 
 const STEPS = [
-    { label: '① Box expands', color: '#f97316' },
-    { label: '② Moves right', color: '#eab308' },
-    { label: '③ Rotates 360°', color: '#a855f7' },
-    { label: '④ Changes color', color: '#ef4444' },
-    { label: '⑤ Fades & shrinks', color: '#64748b' },
+    {
+        label: 'Expands',
+        desc: 'scale 0 → 1',
+        color: '#f97316',
+        glow: 'rgba(249,115,22,0.5)',
+        glowSoft: 'rgba(249,115,22,0.1)',
+        pos: 'default',
+        icon: '⬛',
+    },
+    {
+        label: 'Slides Right',
+        desc: 'x → 120px',
+        color: '#eab308',
+        glow: 'rgba(234,179,8,0.5)',
+        glowSoft: 'rgba(234,179,8,0.1)',
+        pos: 'default',
+        icon: '→',
+    },
+    {
+        label: 'Spins + Color',
+        desc: 'rotation 360° simultaneously',
+        color: '#a855f7',
+        glow: 'rgba(168,85,247,0.5)',
+        glowSoft: 'rgba(168,85,247,0.1)',
+        pos: '"<"',
+        icon: '↻',
+    },
+    {
+        label: 'Centers',
+        desc: 'x → 0, color red',
+        color: '#ef4444',
+        glow: 'rgba(239,68,68,0.5)',
+        glowSoft: 'rgba(239,68,68,0.1)',
+        pos: '"-=0.2"',
+        icon: '◎',
+    },
+    {
+        label: 'Fades Out',
+        desc: 'scale → 0.1, opacity 0',
+        color: '#64748b',
+        glow: 'rgba(100,116,139,0.5)',
+        glowSoft: 'rgba(100,116,139,0.1)',
+        pos: '"+=0.1"',
+        icon: '○',
+    },
+];
+
+const POS_TOKENS = [
+    { token: 'default', color: '#10b981', label: 'after previous ends' },
+    { token: '"<"', color: '#3b82f6', label: 'same time as previous' },
+    { token: '"+=0.5"', color: '#8b5cf6', label: 'after + gap' },
+    { token: '"-=0.3"', color: '#f59e0b', label: 'before ends — overlap' },
 ];
 
 export default function TimelineDemo() {
@@ -42,272 +82,334 @@ export default function TimelineDemo() {
     const tlRef = useRef<gsap.core.Timeline | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [activeStep, setActiveStep] = useState(-1);
+    const [progress, setProgress] = useState(0);
 
     const buildTimeline = () => {
-        // Kill old timeline completely
         if (tlRef.current) tlRef.current.kill();
         setActiveStep(-1);
+        setProgress(0);
         setIsPlaying(true);
 
         const tl = gsap.timeline({
-            // Timeline-level defaults: apply to every tween inside this timeline
             defaults: { ease: 'power2.inOut' },
-            // onComplete fires when the ENTIRE sequence finishes
-            onComplete: () => setIsPlaying(false),
+            onUpdate: function () {
+                setProgress(Math.round(tl.progress() * 100));
+            },
+            onComplete: () => {
+                setIsPlaying(false);
+                setActiveStep(-1);
+            },
         });
 
         tlRef.current = tl;
 
-        /**
-         * Step 1 — Box expands from a dot to full size
-         * Position: default (starts after previous, but this is the first tween)
-         */
+        // Step 1 — expands
         tl.fromTo(
-            '.tl-box',
+            '.tl-hero-box',
             { scale: 0, opacity: 0, x: 0, rotation: 0, backgroundColor: '#f97316' },
-            {
-                scale: 1,
-                opacity: 1,
-                duration: 0.6,
-                ease: 'back.out(2)',
-                onStart: () => setActiveStep(0),
-            }
+            { scale: 1, opacity: 1, duration: 0.65, ease: 'back.out(2)', onStart: () => setActiveStep(0) }
         );
 
-        /**
-         * Step 2 — Slides to the right
-         * Position: default — starts AFTER step 1 ends
-         */
-        tl.to('.tl-box', {
-            x: 100,
+        // Step 2 — slides right
+        tl.to('.tl-hero-box', {
+            x: 120,
             duration: 0.7,
             ease: 'expo.out',
             onStart: () => setActiveStep(1),
         });
 
-        /**
-         * Step 3 — Spins 360° while the color changes SIMULTANEOUSLY
-         * '<' means "start at the same time as the PREVIOUS tween"
-         * This creates overlapping animation — spin + color together.
-         */
-        tl.to('.tl-box', {
+        // Step 3 — spin (and simultaneously color change via '<')
+        tl.to('.tl-hero-box', {
             rotation: 360,
             duration: 0.9,
             ease: 'linear',
             onStart: () => setActiveStep(2),
         });
+        tl.to('.tl-hero-box', { backgroundColor: '#a855f7', duration: 0.9, ease: 'none' }, '<');
 
+        // Step 4 — center + red (overlap previous)
         tl.to(
-            '.tl-box',
-            {
-                backgroundColor: '#a855f7', // color changes during the spin
-                duration: 0.9,
-                ease: 'none',
-            },
-            '<'  // ← '<' = starts at the SAME TIME as the spin above
+            '.tl-hero-box',
+            { backgroundColor: '#ef4444', x: 0, rotation: 360, duration: 0.7, onStart: () => setActiveStep(3) },
+            '-=0.2'
         );
 
-        /**
-         * Step 4 — Jumps to red, moves back to center
-         * '-=0.2' = starts 0.2s BEFORE the previous tween ends (slight overlap)
-         */
+        // Step 5 — fade out (small gap)
         tl.to(
-            '.tl-box',
-            {
-                backgroundColor: '#ef4444',
-                x: 0,
-                rotation: 360,
-                duration: 0.7,
-                onStart: () => setActiveStep(3),
-            },
-            '-=0.2'  // overlaps last 0.2s of previous step
-        );
-
-        /**
-         * Step 5 — Fades out and shrinks
-         * '+=0.1' = add a 0.1s pause AFTER the previous tween ends
-         */
-        tl.to(
-            '.tl-box',
-            {
-                scale: 0.2,
-                opacity: 0,
-                duration: 0.8,
-                ease: 'power3.in',
-                onStart: () => setActiveStep(4),
-            },
-            '+=0.1'  // short pause before final fade
+            '.tl-hero-box',
+            { scale: 0.1, opacity: 0, duration: 0.8, ease: 'power3.in', onStart: () => setActiveStep(4) },
+            '+=0.1'
         );
     };
 
-    useGSAP(
-        () => { buildTimeline(); },
-        { scope: containerRef }
-    );
+    useGSAP(() => { buildTimeline(); }, { scope: containerRef });
 
     return (
         <section
             ref={containerRef}
-            className="w-full max-w-4xl rounded-3xl p-8 md:p-12 mt-6"
+            className="relative w-full max-w-4xl mt-8 rounded-3xl overflow-hidden"
             style={{
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'linear-gradient(145deg, rgba(249,115,22,0.04) 0%, rgba(10,10,10,0) 60%)',
+                border: '1px solid rgba(249,115,22,0.12)',
             }}
         >
-            {/* Header */}
-            <div className="mb-8">
-                <span
-                    className="inline-block text-xs uppercase tracking-widest font-semibold px-3 py-1 rounded-full mb-3"
-                    style={{ background: 'rgba(251,146,60,0.15)', color: '#fb923c' }}
-                >
-                    Example 4
-                </span>
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                    gsap<span style={{ color: '#fb923c' }}>.timeline()</span>
-                </h2>
-                <p className="text-white/50 text-sm max-w-xl leading-relaxed">
-                    Chain multiple tweens into one controlled sequence. No manual delay math —
-                    just queue, overlap, or offset with the{' '}
-                    <span className="text-white/80">position parameter</span>.
-                </p>
-            </div>
-
-            {/* Position Parameter Reference */}
+            {/* Ambient top-right glow */}
             <div
-                className="rounded-xl px-5 py-4 mb-8 font-mono text-xs leading-6 text-white/50"
-                style={{ background: 'rgba(251,146,60,0.06)', border: '1px solid rgba(251,146,60,0.15)' }}
-            >
-                <div><span style={{ color: '#fb923c' }}>tl</span><span className="text-white/30">.to(el, {'{}'})</span><span className="text-white/20 ml-4">// default — starts AFTER previous ends</span></div>
-                <div><span style={{ color: '#fb923c' }}>tl</span><span className="text-white/30">.to(el, {'{}'}, </span><span className="text-blue-300">&quot;&lt;&quot;</span><span className="text-white/30">)</span><span className="text-white/20 ml-4">// starts at SAME TIME as previous</span></div>
-                <div><span style={{ color: '#fb923c' }}>tl</span><span className="text-white/30">.to(el, {'{}'}, </span><span className="text-green-300">&quot;+=0.5&quot;</span><span className="text-white/30">)</span><span className="text-white/20 ml-4">// starts 0.5s AFTER previous ends</span></div>
-                <div><span style={{ color: '#fb923c' }}>tl</span><span className="text-white/30">.to(el, {'{}'}, </span><span className="text-yellow-300">&quot;-=0.3&quot;</span><span className="text-white/30">)</span><span className="text-white/20 ml-4">// overlaps — 0.3s before previous ends</span></div>
-            </div>
+                className="absolute -top-24 -right-24 w-96 h-96 rounded-full pointer-events-none"
+                style={{
+                    background: 'radial-gradient(circle, rgba(249,115,22,0.09) 0%, transparent 70%)',
+                    filter: 'blur(60px)',
+                }}
+            />
 
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-start">
-                {/* Step tracker */}
-                <div className="md:col-span-2 flex flex-col gap-2">
-                    <p className="text-xs uppercase tracking-widest text-white/25 mb-2">Sequence Steps</p>
-                    {STEPS.map((step, i) => (
-                        <div
-                            key={i}
-                            className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-300"
+            <div className="relative z-10 p-8 md:p-12">
+
+                {/* ── Header ── */}
+                <div className="flex items-start justify-between flex-wrap gap-4 mb-10">
+                    <div>
+                        <span
+                            className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-bold px-4 py-1.5 rounded-full mb-4"
                             style={{
-                                background:
-                                    i === activeStep
-                                        ? `rgba(${i === 0 ? '249,115,22' : i === 1 ? '234,179,8' : i === 2 ? '168,85,247' : i === 3 ? '239,68,68' : '100,116,139'},0.2)`
-                                        : 'rgba(255,255,255,0.03)',
-                                border: `1px solid ${i === activeStep ? step.color + '60' : 'rgba(255,255,255,0.05)'}`,
-                                transform: i === activeStep ? 'translateX(4px)' : 'none',
+                                background: 'rgba(249,115,22,0.1)',
+                                color: '#fb923c',
+                                border: '1px solid rgba(249,115,22,0.2)',
                             }}
                         >
-                            <span
-                                className="w-2 h-2 rounded-full flex-shrink-0 transition-all duration-300"
-                                style={{
-                                    background: i === activeStep ? step.color : 'rgba(255,255,255,0.1)',
-                                    boxShadow: i === activeStep ? `0 0 8px ${step.color}` : 'none',
-                                }}
-                            />
-                            <span
-                                className="text-xs font-medium"
-                                style={{ color: i === activeStep ? step.color : 'rgba(255,255,255,0.35)' }}
-                            >
-                                {step.label}
-                            </span>
-                            {i === 2 && (
-                                <span className="ml-auto text-[10px] text-white/20 font-mono">&lt;</span>
-                            )}
-                            {i === 3 && (
-                                <span className="ml-auto text-[10px] text-white/20 font-mono">-=0.2</span>
-                            )}
-                            {i === 4 && (
-                                <span className="ml-auto text-[10px] text-white/20 font-mono">+=0.1</span>
-                            )}
-                        </div>
-                    ))}
-                </div>
+                            <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
+                            Example 4
+                        </span>
+                        <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-2">
+                            gsap<span style={{ color: '#fb923c' }}>.timeline()</span>
+                        </h2>
+                        <p className="text-white/40 text-sm max-w-sm leading-relaxed">
+                            Chain tweens into a masterful sequence. Use the{' '}
+                            <span className="text-white/70 font-semibold">position parameter</span> to
+                            overlap, queue, or offset with zero delay math.
+                        </p>
+                    </div>
 
-                {/* Animation Stage */}
-                <div className="md:col-span-3">
-                    <p className="text-xs uppercase tracking-widest text-white/25 mb-2">Live Preview</p>
+                    {/* Position param mini-reference */}
                     <div
-                        className="relative rounded-2xl overflow-hidden flex items-center justify-center"
+                        className="self-start rounded-2xl px-5 py-4 font-mono text-xs leading-6"
                         style={{
                             background: 'rgba(0,0,0,0.4)',
-                            border: '1px solid rgba(255,255,255,0.04)',
-                            height: '200px',
+                            border: '1px solid rgba(249,115,22,0.18)',
+                            backdropFilter: 'blur(12px)',
                         }}
                     >
-                        {/* Grid bg */}
-                        <div
-                            className="absolute inset-0"
-                            style={{
-                                backgroundImage:
-                                    'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
-                                backgroundSize: '30px 30px',
-                            }}
-                        />
-                        {/**
-                         * .tl-box — targeted by all timeline tweens above.
-                         * Its initial CSS state is irrelevant because the first tween
-                         * uses fromTo() to fully define both its start and end values.
-                         */}
-                        <div
-                            className="tl-box relative z-10 w-16 h-16 rounded-2xl flex items-center justify-center font-bold text-white text-sm shadow-lg"
-                            style={{
-                                background: '#f97316',
-                                boxShadow: '0 0 30px rgba(249,115,22,0.4)',
-                                opacity: 0,
-                            }}
-                        >
-                            TL
-                        </div>
-                    </div>
-
-                    {/* Timeline playback controls */}
-                    <div className="mt-4 flex gap-3 flex-wrap">
-                        <button
-                            onClick={buildTimeline}
-                            disabled={isPlaying}
-                            className="flex-1 px-5 py-3 rounded-full text-sm font-semibold transition-all duration-300 disabled:opacity-40"
-                            style={{
-                                background: 'rgba(251,146,60,0.2)',
-                                color: '#fb923c',
-                                border: '1px solid rgba(251,146,60,0.3)',
-                            }}
-                            onMouseEnter={(e) => !isPlaying && ((e.currentTarget as HTMLElement).style.background = 'rgba(251,146,60,0.35)')}
-                            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = 'rgba(251,146,60,0.2)')}
-                        >
-                            {isPlaying ? '⏳ Playing...' : '▶ Play Timeline'}
-                        </button>
-                        <button
-                            onClick={() => { tlRef.current?.reverse(); setIsPlaying(false); }}
-                            className="px-5 py-3 rounded-full text-sm font-semibold transition-all duration-300"
-                            style={{
-                                background: 'rgba(255,255,255,0.05)',
-                                color: 'rgba(255,255,255,0.5)',
-                                border: '1px solid rgba(255,255,255,0.08)',
-                            }}
-                            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.1)')}
-                            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)')}
-                        >
-                            ◀ Reverse
-                        </button>
+                        {POS_TOKENS.map((t) => (
+                            <div key={t.token} className="flex items-center gap-2">
+                                <span style={{ color: t.color }} className="w-16 text-right">{t.token}</span>
+                                <span className="text-white/15">→</span>
+                                <span className="text-white/30 text-[10px]">{t.label}</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
-            </div>
 
-            {/* Key insight */}
-            <div
-                className="mt-8 rounded-xl px-5 py-4 text-sm leading-relaxed"
-                style={{ background: 'rgba(251,146,60,0.05)', border: '1px solid rgba(251,146,60,0.12)' }}
-            >
-                <strong style={{ color: '#fb923c' }}>💡 Key Insight: </strong>
-                <span className="text-white/60">
-                    Notice how Step ③ (rotation) and its color change run <strong className="text-white">simultaneously</strong> using{' '}
-                    <code className="text-white/90 text-xs">&quot;&lt;&quot;</code>. This is the{' '}
-                    <strong className="text-white">position parameter</strong> — the most powerful feature of GSAP timelines.
-                    It lets you create complex choreography without ever manually calculating delay times.
-                </span>
+                {/* ── Main Split Layout ── */}
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-start mb-8">
+
+                    {/* Step tracker */}
+                    <div className="md:col-span-2 flex flex-col gap-2">
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-white/20 mb-2 font-mono">Sequence</p>
+                        {STEPS.map((step, i) => {
+                            const isActive = i === activeStep;
+                            return (
+                                <div
+                                    key={i}
+                                    className="relative flex items-center gap-3 px-4 py-3 rounded-xl overflow-hidden transition-all duration-300"
+                                    style={{
+                                        background: isActive
+                                            ? `rgba(${step.color === '#f97316' ? '249,115,22' : step.color === '#eab308' ? '234,179,8' : step.color === '#a855f7' ? '168,85,247' : step.color === '#ef4444' ? '239,68,68' : '100,116,139'},0.15)`
+                                            : 'rgba(255,255,255,0.025)',
+                                        border: `1px solid ${isActive ? step.color + '50' : 'rgba(255,255,255,0.05)'}`,
+                                        transform: isActive ? 'translateX(6px)' : 'none',
+                                        boxShadow: isActive ? `0 0 20px ${step.glow.replace('0.5', '0.2')}` : 'none',
+                                    }}
+                                >
+                                    {/* Active glow fill */}
+                                    {isActive && (
+                                        <div
+                                            className="absolute inset-0 pointer-events-none"
+                                            style={{
+                                                background: `linear-gradient(90deg, ${step.glowSoft} 0%, transparent 100%)`,
+                                            }}
+                                        />
+                                    )}
+
+                                    {/* Icon */}
+                                    <div
+                                        className="relative z-10 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all duration-300"
+                                        style={{
+                                            background: isActive ? step.color : 'rgba(255,255,255,0.05)',
+                                            color: isActive ? '#fff' : 'rgba(255,255,255,0.25)',
+                                            boxShadow: isActive ? `0 0 12px ${step.glow}` : 'none',
+                                        }}
+                                    >
+                                        {step.icon}
+                                    </div>
+
+                                    {/* Text */}
+                                    <div className="relative z-10 flex-1 min-w-0">
+                                        <p
+                                            className="text-xs font-semibold transition-colors duration-300 truncate"
+                                            style={{ color: isActive ? step.color : 'rgba(255,255,255,0.4)' }}
+                                        >
+                                            {i + 1}. {step.label}
+                                        </p>
+                                        <p className="text-[10px] text-white/20 font-mono">{step.desc}</p>
+                                    </div>
+
+                                    {/* Position badge */}
+                                    {step.pos !== 'default' && (
+                                        <span
+                                            className="relative z-10 text-[9px] font-mono px-1.5 py-0.5 rounded flex-shrink-0"
+                                            style={{
+                                                background: isActive ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.03)',
+                                                color: isActive ? step.color : 'rgba(255,255,255,0.15)',
+                                                border: `1px solid ${isActive ? step.color + '40' : 'transparent'}`,
+                                            }}
+                                        >
+                                            {step.pos}
+                                        </span>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {/* Live Preview + Controls */}
+                    <div className="md:col-span-3 flex flex-col gap-4">
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-white/20 font-mono">Live Preview</p>
+
+                        {/* Stage */}
+                        <div
+                            className="relative rounded-2xl overflow-hidden flex items-center justify-center"
+                            style={{
+                                background: 'rgba(0,0,0,0.45)',
+                                border: '1px solid rgba(255,255,255,0.04)',
+                                height: '220px',
+                            }}
+                        >
+                            {/* Grid bg */}
+                            <div
+                                className="absolute inset-0 pointer-events-none"
+                                style={{
+                                    backgroundImage:
+                                        'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
+                                    backgroundSize: '28px 28px',
+                                }}
+                            />
+
+                            {/* Center crosshair */}
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div className="w-px h-full bg-white/3" />
+                                <div className="h-px w-full bg-white/3 absolute" />
+                            </div>
+
+                            {/* The animated box */}
+                            <div
+                                className="tl-hero-box relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center font-black text-white text-xs shadow-2xl"
+                                style={{
+                                    background: '#f97316',
+                                    boxShadow:
+                                        activeStep >= 0
+                                            ? `0 0 40px ${STEPS[activeStep]?.glow ?? 'rgba(249,115,22,0.5)'}`
+                                            : '0 0 30px rgba(249,115,22,0.4)',
+                                    opacity: 0,
+                                }}
+                            >
+                                TL
+                            </div>
+
+                            {/* Active step overlay badge */}
+                            {activeStep >= 0 && (
+                                <div
+                                    className="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold transition-all duration-300"
+                                    style={{
+                                        background: `${STEPS[activeStep]?.color}18`,
+                                        color: STEPS[activeStep]?.color,
+                                        border: `1px solid ${STEPS[activeStep]?.color}30`,
+                                    }}
+                                >
+                                    Step {activeStep + 1} / {STEPS.length}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Progress bar */}
+                        <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                            <div
+                                className="h-full rounded-full transition-all duration-100"
+                                style={{
+                                    width: `${progress}%`,
+                                    background:
+                                        activeStep >= 0
+                                            ? `linear-gradient(90deg, ${STEPS[Math.max(0, activeStep - 1)]?.color ?? '#f97316'}, ${STEPS[activeStep]?.color ?? '#fb923c'})`
+                                            : 'rgba(249,115,22,0.4)',
+                                }}
+                            />
+                        </div>
+
+                        {/* Controls */}
+                        <div className="flex gap-3">
+                            <button
+                                onClick={buildTimeline}
+                                disabled={isPlaying}
+                                className="flex-1 px-5 py-3 rounded-xl text-sm font-bold transition-all duration-300 disabled:opacity-40 flex items-center justify-center gap-2"
+                                style={{
+                                    background: isPlaying ? 'rgba(249,115,22,0.08)' : 'rgba(249,115,22,0.15)',
+                                    color: '#fb923c',
+                                    border: '1px solid rgba(249,115,22,0.25)',
+                                }}
+                                onMouseEnter={(e) => !isPlaying && ((e.currentTarget as HTMLElement).style.boxShadow = '0 0 25px rgba(249,115,22,0.3)')}
+                                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.boxShadow = 'none')}
+                            >
+                                {isPlaying ? (
+                                    <>
+                                        <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
+                                        Playing…
+                                    </>
+                                ) : (
+                                    <>▶ Play Timeline</>
+                                )}
+                            </button>
+
+                            <button
+                                onClick={() => { tlRef.current?.reverse(); setIsPlaying(false); }}
+                                className="px-5 py-3 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center gap-1.5"
+                                style={{
+                                    background: 'rgba(255,255,255,0.04)',
+                                    color: 'rgba(255,255,255,0.4)',
+                                    border: '1px solid rgba(255,255,255,0.07)',
+                                }}
+                                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.08)')}
+                                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)')}
+                            >
+                                ◀ Reverse
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* ── Insight ── */}
+                <div
+                    className="rounded-2xl px-5 py-4 text-sm leading-relaxed"
+                    style={{
+                        background: 'rgba(249,115,22,0.05)',
+                        border: '1px solid rgba(249,115,22,0.12)',
+                    }}
+                >
+                    <strong style={{ color: '#fb923c' }}>💡 Key Insight: </strong>
+                    <span className="text-white/50">
+                        Step ③ (rotation) and the color change run{' '}
+                        <strong className="text-white/80">simultaneously</strong> using{' '}
+                        <code className="text-white/80 text-xs bg-white/5 px-1.5 py-0.5 rounded">&quot;&lt;&quot;</code>.
+                        This is the <strong className="text-white/80">position parameter</strong> — chain, overlap,
+                        or gap any tween in your sequence without ever touching delay numbers.
+                    </span>
+                </div>
             </div>
         </section>
     );

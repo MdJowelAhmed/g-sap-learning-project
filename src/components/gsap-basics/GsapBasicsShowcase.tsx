@@ -126,17 +126,14 @@ export default function GsapBasicsShowcase() {
     );
 
     return (
-        <div style={{ background: '#0a0a0a', marginTop: '100px' }}>
-            {/* ══════════════════════════════════════════
-            Example 1 — to() vs from()
-        ══════════════════════════════════════════ */}
+        <div style={{ background: '#0a0a0a', marginTop: '40px' }}>
             <div
                 ref={containerRef}
-                className="w-full flex flex-col items-center justify-center px-6 pt-24 pb-16 overflow-hidden"
+                className="w-full flex flex-col items-center justify-center px-6 pt-12 pb-10 overflow-hidden"
             >
                 {/* ── Page Header ── */}
-                <div className="text-center mb-16 max-w-2xl">
-                    <p className="text-sm uppercase tracking-[0.3em] mb-3 font-medium" style={{ color: '#c9f31d' }}>
+                <div className="text-center mb-8 max-w-2xl">
+                    <p className="text-sm uppercase tracking-[0.3em] mb- font-medium" style={{ color: '#c9f31d' }}>
                         GSAP Fundamentals
                     </p>
                     <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
